@@ -1,0 +1,31 @@
+/**
+ * users.json — Test data for PRAGMA E2E tests
+ *
+ * These represent the test tenant users created specifically for automation.
+ * Never use production credentials here.
+ *
+ * The actual passwords come from .env — these entries only document the roles.
+ */
+{
+    "testTenant": {
+        "name": "PRAGMA E2E Test Tenant",
+        "domain": "pragma-e2e-test"
+    },
+    "users": {
+        "admin": {
+            "email": "admin@pragma-e2e.com",
+            "role": "ADMIN",
+            "description": "Full admin access to all modules"
+        },
+        "member": {
+            "email": "member@pragma-e2e.com",
+            "role": "MEMBER",
+            "description": "Standard team member access"
+        },
+        "viewer": {
+            "email": "viewer@pragma-e2e.com",
+            "role": "VIEWER",
+            "description": "Read-only access"
+        }
+    }
+}
