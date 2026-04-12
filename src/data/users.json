@@ -13,7 +13,7 @@
     },
     "users": {
         "admin": {
-            "email": "admin@pragma-e2e.com",
+            "email": "testuser@pragma-e2e.com",
             "role": "ADMIN",
             "description": "Full admin access to all modules"
         },

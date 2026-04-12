@@ -178,7 +178,7 @@ graph TD
 
 ## 👤 Author
 
-**Sebastian Gomez** — [@Sebasg96](https://github.com/Sebasg96)
+**Sebastian Galindo** — [@Sebasg96](https://github.com/Sebasg96)
 
 QA Automation Engineer | AI-augmented testing  
 *Built as part of QA portfolio showcasing AI-powered E2E testing practices.*
@@ -187,4 +187,4 @@ QA Automation Engineer | AI-augmented testing
 
 ## 📄 License
 
-MIT © Sebastian Gomez
+MIT © Sebastian Galindo
