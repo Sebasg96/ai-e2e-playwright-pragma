@@ -33,7 +33,7 @@ test.describe('Login — Smoke', () => {
         });
 
         await test.step('Verify redirect to authenticated area', async () => {
-            await expect(page).toHaveURL(/\/dashboard|\/home|\/strategy/);
+            await expect(page).toHaveURL(/\/dashboard|\/home|\/strategy|\/$/);
         });
     });
 
@@ -45,7 +45,7 @@ test.describe('Login — Smoke', () => {
         });
 
         await test.step('Verify error message is shown', async () => {
-            await loginPage.expectErrorMessage();
+            await loginPage.expectErrorMessage('Invalid credentials or login failed.');
         });
     });
 });

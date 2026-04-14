@@ -24,6 +24,24 @@ export class DashboardPage extends BasePage {
         return this.page.getByTestId('nav-strategy');
     }
 
+    private get toggleMenuButton() {
+        return this.page.getByRole('button', { name: 'Toggle Menu' });
+    }
+
+    private get hubLogoutButton() {
+        return this.page.getByRole('button', { name: 'Logout' });
+    }
+
+    private get strategyHubLink() {
+        return this.page.getByRole('link', { name: /Gestionar Estrategia/ });
+    }
+
+    private get dashboardHubLink() {
+        return this.page.getByRole('link', { name: /Dashboard/ });
+    }
+
+
+
 
 
     // ─── Navigation ────────────────────────────────────────────────────────
@@ -33,7 +51,12 @@ export class DashboardPage extends BasePage {
     }
 
     async goToStrategy(): Promise<this> {
-        await this.strategyNavLink.click();
+        const isHub = await this.strategyHubLink.isVisible();
+        if (isHub) {
+            await this.strategyHubLink.click();
+        } else {
+            await this.strategyNavLink.click();
+        }
         await this.waitForURL(/\/strategy/);
         return this;
     }
@@ -41,21 +64,35 @@ export class DashboardPage extends BasePage {
     // ─── Actions ───────────────────────────────────────────────────────────
 
     /**
-     * Log out the current user via the user menu
+     * Log out the current user (handles both Hub and Module layouts)
      */
     async logout(): Promise<void> {
-        await this.userMenuButton.click();
-        await this.logoutButton.click();
+        const isHub = await this.hubLogoutButton.isVisible();
+        if (isHub) {
+            await this.hubLogoutButton.click();
+        } else {
+            await this.userMenuButton.click();
+            await this.logoutButton.click();
+        }
         await this.waitForURL(/\/login/);
     }
 
     // ─── Assertions ────────────────────────────────────────────────────────
 
     /**
-     * Verify we are on the dashboard (post-login landing)
+     * Verify the user is authenticated (handles Hub, Sidebar, or Collapsed Sidebar)
      */
     async expectDashboardLoaded(): Promise<void> {
-        await expect(this.sidebarNav).toBeVisible();
+        // 1. Check if we are on the Hub page
+        const isHub = await this.strategyHubLink.isVisible();
+        if (isHub) return;
+
+        // 2. Check for Sidebar (Module page, expanded)
+        const isSidebar = await this.sidebarNav.isVisible();
+        if (isSidebar) return;
+
+        // 3. Check for Toggle Menu (Module page, collapsed)
+        await expect(this.toggleMenuButton.or(this.dashboardHubLink)).toBeVisible();
     }
 
     /**

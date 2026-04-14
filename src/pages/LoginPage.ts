@@ -14,19 +14,19 @@ import { BasePage } from './BasePage';
 export class LoginPage extends BasePage {
     // ─── Locators (using data-testid for stability) ─────────────────────────
     private get emailInput() {
-        return this.page.getByTestId('email-input');
+        return this.page.getByTestId('auth-login-email-input');
     }
 
     private get passwordInput() {
-        return this.page.getByTestId('password-input');
+        return this.page.getByTestId('auth-login-password-input');
     }
 
     private get submitButton() {
-        return this.page.getByTestId('login-submit-btn');
+        return this.page.getByTestId('auth-login-submit-button');
     }
 
     private get errorMessage() {
-        return this.page.getByTestId('login-error-message');
+        return this.page.getByText('Invalid credentials or login failed.');
     }
 
 
@@ -54,7 +54,7 @@ export class LoginPage extends BasePage {
      */
     async loginAsUser(email: string, password: string): Promise<void> {
         await this.login(email, password);
-        await this.waitForURL(/\/dashboard|\/home|\/strategy/);
+        await this.waitForURL(/\/dashboard|\/home|\/strategy|\/$/);
     }
 
     // ─── Assertions ────────────────────────────────────────────────────────
