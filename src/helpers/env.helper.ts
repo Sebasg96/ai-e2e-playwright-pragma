@@ -37,6 +37,11 @@ export const env = {
         return process.env.ENVIRONMENT || 'local';
     },
 
+    /** Test tenant ID for data cleanup */
+    get testTenantId(): string {
+        return requireEnv('TEST_TENANT_ID');
+    },
+
     /** Check if running in CI */
     get isCI(): boolean {
         return !!process.env.CI;

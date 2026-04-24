@@ -24,3 +24,8 @@ playwright/.auth/
 Thumbs.db
 .vscode/settings.json
 *.log
+
+/generated/prisma
+
+# ─── Runtime ──────────────────────────────────────────────────────────────────
+*.pid

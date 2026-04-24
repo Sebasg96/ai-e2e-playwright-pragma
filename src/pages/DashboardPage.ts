@@ -40,6 +40,10 @@ export class DashboardPage extends BasePage {
         return this.page.getByRole('link', { name: /Dashboard/ });
     }
 
+    private get drawerLogoutButton() {
+        return this.page.getByRole('button', { name: /Cerrar Sesión|Logout/i });
+    }
+
 
 
 
@@ -51,12 +55,29 @@ export class DashboardPage extends BasePage {
     }
 
     async goToStrategy(): Promise<this> {
-        const isHub = await this.strategyHubLink.isVisible();
-        if (isHub) {
+        // Dashboard has multiple layouts depending on viewport + tenant state:
+        //  - Hub layout (direct link: "Gestionar Estrategia")
+        //  - Module layout with expanded sidebar (data-testid nav-strategy visible)
+        //  - Module layout with collapsed sidebar (must click "Toggle Menu" first)
+
+        if (await this.strategyHubLink.isVisible()) {
             await this.strategyHubLink.click();
-        } else {
+        } else if (await this.strategyNavLink.isVisible()) {
             await this.strategyNavLink.click();
+        } else if (await this.toggleMenuButton.isVisible()) {
+            await this.toggleMenuButton.click();
+            // Drawer exposes hub link in Hub layout, nav-strategy in Module layout
+            if (await this.strategyHubLink.isVisible({ timeout: 5000 }).catch(() => false)) {
+                await this.strategyHubLink.click();
+            } else if (await this.strategyNavLink.isVisible({ timeout: 5000 }).catch(() => false)) {
+                await this.strategyNavLink.click();
+            } else {
+                await this.goto('/strategy');
+            }
+        } else {
+            await this.goto('/strategy');
         }
+
         await this.waitForURL(/\/strategy/);
         return this;
     }
@@ -67,12 +88,22 @@ export class DashboardPage extends BasePage {
      * Log out the current user (handles both Hub and Module layouts)
      */
     async logout(): Promise<void> {
-        const isHub = await this.hubLogoutButton.isVisible();
-        if (isHub) {
+        if (await this.hubLogoutButton.isVisible()) {
             await this.hubLogoutButton.click();
-        } else {
+        } else if (await this.userMenuButton.isVisible()) {
             await this.userMenuButton.click();
             await this.logoutButton.click();
+        } else if (await this.toggleMenuButton.isVisible()) {
+            await this.toggleMenuButton.click();
+            await expect(this.drawerLogoutButton).toBeVisible();
+            await this.drawerLogoutButton.click();
+        } else {
+            await expect(this.drawerLogoutButton.or(this.hubLogoutButton)).toBeVisible();
+            if (await this.drawerLogoutButton.isVisible()) {
+                await this.drawerLogoutButton.click();
+            } else {
+                await this.hubLogoutButton.click();
+            }
         }
         await this.waitForURL(/\/login/);
     }

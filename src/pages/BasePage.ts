@@ -23,7 +23,13 @@ export abstract class BasePage {
      * Navigate to a path relative to the baseURL configured in playwright.config.ts
      */
     async goto(path: string = '/'): Promise<this> {
-        await this.page.goto(path);
+        // Some SPA/Next.js flows keep the "load" event from firing reliably
+        // (e.g. due to long-lived connections). "domcontentloaded" is early
+        // enough for deterministic element assertions.
+        await this.page.goto(path, {
+            waitUntil: 'domcontentloaded',
+            timeout: 45_000,
+        });
         return this;
     }
 
@@ -31,7 +37,7 @@ export abstract class BasePage {
      * Reload the current page
      */
     async reload(): Promise<this> {
-        await this.page.reload();
+        await this.page.reload({ waitUntil: 'domcontentloaded' });
         return this;
     }
 

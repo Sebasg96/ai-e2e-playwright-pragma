@@ -26,6 +26,8 @@ env:
   BASE_URL: ${{ secrets.BASE_URL || 'http://localhost:3000' }}
   TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
   TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+  TEST_TENANT_ID: ${{ secrets.TEST_TENANT_ID }}
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
   ENVIRONMENT: ${{ secrets.ENVIRONMENT || 'staging' }}
 
 jobs:
@@ -53,6 +55,10 @@ jobs:
 
       - name: Run smoke tests
         run: npm run test:smoke -- --project=chromium --reporter=github,html
+
+      - name: "\U0001F9F9 Clean test data"
+        if: always()
+        run: npm run clean:testdata
 
       - name: Upload test report
         if: always()
@@ -87,6 +93,10 @@ jobs:
 
       - name: Run sanity tests
         run: npm run test:sanity -- --project=chromium --reporter=github,html
+
+      - name: "\U0001F9F9 Clean test data"
+        if: always()
+        run: npm run clean:testdata
 
       - name: Upload test report
         if: always()
@@ -125,6 +135,10 @@ jobs:
 
       - name: Run regression tests
         run: npm run test:regression -- --project=${{ matrix.browser }} --reporter=github,html
+
+      - name: "\U0001F9F9 Clean test data"
+        if: always()
+        run: npm run clean:testdata
 
       - name: Upload test report
         if: always()

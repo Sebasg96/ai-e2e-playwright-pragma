@@ -1,11 +1,28 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices, firefox, webkit } from '@playwright/test';
 import dotenv from 'dotenv';
+import fs from 'fs';
 import path from 'path';
 
 // Load environment variables from .env file
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
+
+const canLaunchFirefox = (() => {
+    try {
+        return fs.existsSync(firefox.executablePath());
+    } catch {
+        return false;
+    }
+})();
+
+const canLaunchWebkit = (() => {
+    try {
+        return fs.existsSync(webkit.executablePath());
+    } catch {
+        return false;
+    }
+})();
 
 /**
  * Playwright Configuration
@@ -16,7 +33,7 @@ export default defineConfig({
     testDir: './tests',
 
     // Run tests in files in parallel
-    fullyParallel: true,
+    fullyParallel: false,
 
     // Fail the build on CI if you accidentally left test.only in the source code.
     forbidOnly: !!process.env.CI,
@@ -25,7 +42,7 @@ export default defineConfig({
     retries: process.env.CI ? 2 : 0,
 
     // Opt out of parallel tests on CI.
-    workers: process.env.CI ? 2 : undefined,
+    workers: process.env.CI ? 2 : 2,
 
     // Reporters to use
     reporter: [
@@ -74,22 +91,30 @@ export default defineConfig({
             },
             dependencies: ['setup'],
         },
-        {
-            name: 'firefox',
-            use: {
-                ...devices['Desktop Firefox'],
-                storageState: 'playwright/.auth/user.json',
-            },
-            dependencies: ['setup'],
-        },
-        {
-            name: 'webkit',
-            use: {
-                ...devices['Desktop Safari'],
-                storageState: 'playwright/.auth/user.json',
-            },
-            dependencies: ['setup'],
-        },
+        ...(canLaunchFirefox
+            ? [
+                {
+                    name: 'firefox',
+                    use: {
+                        ...devices['Desktop Firefox'],
+                        storageState: 'playwright/.auth/user.json',
+                    },
+                    dependencies: ['setup'],
+                },
+            ]
+            : []),
+        ...(canLaunchWebkit
+            ? [
+                {
+                    name: 'webkit',
+                    use: {
+                        ...devices['Desktop Safari'],
+                        storageState: 'playwright/.auth/user.json',
+                    },
+                    dependencies: ['setup'],
+                },
+            ]
+            : []),
 
         // ─── Mobile Projects ─────────────────────────────────────────────────
         {
@@ -107,6 +132,9 @@ export default defineConfig({
 
     // Global setup script
     // globalSetup: require.resolve('./src/helpers/global-setup.ts'),
+
+    // Global teardown script
+    // globalTeardown: require.resolve('./src/helpers/global-teardown.ts'),
 
     // Timeout for each test
     timeout: 60_000,
